@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>redis-distributed-lock</artifactId>
+        <groupId>cn.cruder.dousx</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>redis-distributed-lock-starter</artifactId>
+    <version>${redis-distributed-lock.version}</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <!--引入autoconfigure-->
+        <dependency>
+            <groupId>cn.cruder.dousx</groupId>
+            <artifactId>redis-distributed-lock-autoconfigure</artifactId>
+            <version>${redis-distributed-lock.version}</version>
+        </dependency>
+    </dependencies>
+</project>

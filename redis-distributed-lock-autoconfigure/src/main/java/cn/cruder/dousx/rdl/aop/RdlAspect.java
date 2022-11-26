@@ -32,6 +32,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RdlAspect {
     public static final String BEAN_NAME = "rdl_LockAspect";
+    private static final String KEY_PARTITION = ":";
     private final DistributedLockService distributedLockService;
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
@@ -91,35 +92,36 @@ public class RdlAspect {
     }
 
     private String lockKey(ProceedingJoinPoint point, DistributedLock enableRdl) {
+        String defaultLockKey = defaultLockKey(point);
         if (StringUtils.isBlank(enableRdl.lockKey())) {
-            return defaultLockKey(point);
-        } else {
-            MethodSignature methodSignature = (MethodSignature) point.getSignature();
-            String[] paramNames = nameDiscoverer.getParameterNames(methodSignature.getMethod());
-            Object[] args = point.getArgs();
-            if (paramNames == null || args == null
-                    || paramNames.length == 0
-                    || args.length == 0
-                    || args.length != paramNames.length) {
-                throw new IllegalArgumentException();
-            }
-            Expression expression = parser.parseExpression(enableRdl.lockKey());
-            EvaluationContext context = new StandardEvaluationContext();
-            for (int i = 0; i < args.length; i++) {
-                context.setVariable(paramNames[i], args[i]);
-            }
-            try {
-                return String.valueOf(expression.getValue(context));
-            } catch (EvaluationException e) {
-                throw new IllegalArgumentException(expression.getExpressionString(), e.getCause());
-            }
+            return defaultLockKey;
         }
+        MethodSignature methodSignature = (MethodSignature) point.getSignature();
+        String[] paramNames = nameDiscoverer.getParameterNames(methodSignature.getMethod());
+        Object[] args = point.getArgs();
+        if (paramNames == null || args == null
+                || paramNames.length == 0
+                || args.length == 0
+                || args.length != paramNames.length) {
+            throw new IllegalArgumentException();
+        }
+        Expression expression = parser.parseExpression(enableRdl.lockKey());
+        EvaluationContext context = new StandardEvaluationContext();
+        for (int i = 0; i < args.length; i++) {
+            context.setVariable(paramNames[i], args[i]);
+        }
+        try {
+            return defaultLockKey + KEY_PARTITION + expression.getValue(context);
+        } catch (EvaluationException e) {
+            throw new IllegalArgumentException(expression.getExpressionString(), e.getCause());
+        }
+
     }
 
     private static String defaultLockKey(ProceedingJoinPoint point) {
         String declaringTypeName = point.getSignature().getDeclaringTypeName();
         String sigName = point.getSignature().getName();
-        return declaringTypeName + ":" + sigName;
+        return declaringTypeName + KEY_PARTITION + sigName;
     }
 
     /**

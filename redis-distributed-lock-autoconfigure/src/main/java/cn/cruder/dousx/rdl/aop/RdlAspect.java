@@ -54,7 +54,6 @@ public class RdlAspect {
         if (Objects.isNull(distributedLock)) {
             return point.proceed();
         }
-
         String lockValue = UUID.randomUUID().toString();
         String lockKey = null;
         boolean lockFlag = false;
@@ -62,17 +61,14 @@ public class RdlAspect {
             long timeout = distributedLock.lockTime();
             lockKey = lockKey(point, distributedLock);
             lockFlag = distributedLockService.lock(lockKey, lockValue, timeout);
-
             if (lockFlag) {
-                if (log.isDebugEnabled()) {
-                    log.debug("[加锁成功]lockKey:{} lockValue:{} timeout:{}s lock:{}", lockKey, lockValue, timeout, lockFlag);
-                }
+                log.debug("[加锁成功]lockKey:{} lockValue:{} timeout:{}s ", lockKey, lockValue, timeout);
                 return point.proceed();
             } else {
-                log.warn("[加锁失败] lockKey:{} lockValue:{} timeout:{} ", lockKey, lockValue, timeout);
+                log.debug("[加锁失败]lockKey:{} lockValue:{} timeout:{}s ", lockKey, lockValue, timeout);
                 Class<? extends LockFailPolicy> aClass = distributedLock.lockFailPolicy();
                 LockFailPolicy lockFailPolicy = aClass.newInstance();
-                return lockFailPolicy.policy(point.getArgs());
+                return lockFailPolicy.policy(point.getArgs(), lockKey);
             }
         } catch (Throwable e) {
             // 抛出,交业务处理
@@ -81,11 +77,10 @@ public class RdlAspect {
             if (lockFlag && StringUtils.isNotBlank(lockKey)) {
                 boolean unlock = distributedLockService.unlock(lockKey, lockValue);
                 if (!unlock) {
+                    log.warn("[解锁失败] unLockKey:{} unLockValue:{}", lockKey, lockValue);
                     Class<? extends UnLockFailPolicy> aClass = distributedLock.unLockFailPolicy();
                     UnLockFailPolicy unLockFailPolicy = aClass.newInstance();
-                    unLockFailPolicy.policy(point.getArgs());
-
-                    log.debug("[解锁失败] unLockKey:{} unLockValue:{} unlock:{}", lockKey, lockValue, unlock);
+                    unLockFailPolicy.policy(point.getArgs(), lockKey, lockValue);
                 }
             }
         }

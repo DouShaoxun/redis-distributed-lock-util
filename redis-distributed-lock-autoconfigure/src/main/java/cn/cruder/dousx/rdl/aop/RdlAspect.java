@@ -63,7 +63,7 @@ public class RdlAspect {
             lockKey = lockKey(point, distributedLock);
             lockFlag = distributedLockService.lock(lockKey, lockValue, timeout);
             if (log.isDebugEnabled()) {
-                log.debug("lockKey:{} lockValue:{} timeout:{}s lock:{}", lockKey, lockValue, timeout, lockFlag);
+                log.debug("[加锁成功]lockKey:{} lockValue:{} timeout:{}s lock:{}", lockKey, lockValue, timeout, lockFlag);
             }
             if (lockFlag) {
                 return point.proceed();

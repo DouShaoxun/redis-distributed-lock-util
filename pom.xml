@@ -7,7 +7,7 @@
     <groupId>cn.cruder.dousx</groupId>
     <artifactId>redis-distributed-lock</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>${redis-distributed-lock.version}</version>
     <modules>
         <module>redis-distributed-lock-autoconfigure</module>
         <module>redis-distributed-lock-starter</module>
@@ -88,6 +88,16 @@
             </plugin>
         </plugins>
     </build>
+    <!--使用分发上传将项目打成jar包，上传到nexus私服上-->
+    <distributionManagement>
+        <!--发布版本仓库-->
+        <repository>
+            <!--nexus服务器中用户名：在settings.xml中和<server>的id一致-->
+            <id>cruderRepo</id>
+            <!--仓库地址-->
+            <url>http://192.168.0.108:8081/repository/cruderRepo/</url>
+        </repository>
+    </distributionManagement>
 
 
 </project>

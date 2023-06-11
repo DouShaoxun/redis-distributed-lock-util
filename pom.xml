@@ -7,7 +7,7 @@
     <groupId>cn.cruder.dousx</groupId>
     <artifactId>redis-distributed-lock</artifactId>
     <packaging>pom</packaging>
-    <version>${redis-distributed-lock.version}</version>
+    <version>1.0</version>
     <modules>
         <module>redis-distributed-lock-autoconfigure</module>
         <module>redis-distributed-lock-starter</module>
